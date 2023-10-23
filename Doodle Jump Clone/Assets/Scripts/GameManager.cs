@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -11,11 +12,20 @@ public class GameManager : MonoBehaviour
     #endregion
 
     private int score = 0;
+    private int highScore;
+    private void Start()
+    {
+        highScore = FileHandler.loadFromJson("score.txt").highScore;
+    }
 
     public void gameOver()
     {
-        Debug.Log("GameOver");
-        Time.timeScale = 0;
+        if (score >= highScore)
+        {
+            highScore = score;
+        }
+        FileHandler.saveToJSON(new InputHandler(highScore, score), "score.txt");
+        SceneManager.LoadScene(0);
     }
 
     public void setScore(int _score)

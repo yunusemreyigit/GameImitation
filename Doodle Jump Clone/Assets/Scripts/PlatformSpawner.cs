@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PlatformSpawner : MonoBehaviour
 {
-    public String[] spawnObjectName;
+    public string[] spawnObjectName;
 
     [SerializeField] private float duration;
     float timer = 0;

@@ -45,7 +45,8 @@ public class ObjectPool : MonoBehaviour
         GameObject gameObject = pooDic[type].Dequeue();
         gameObject.transform.position = positon;
         gameObject.transform.rotation = rotation;
-        gameObject.GetComponent<Platform>().spawnObject();
+        if (type != "Enemy")
+            gameObject.GetComponent<Platform>().spawnObject();
         gameObject.SetActive(true);
 
         pooDic[type].Enqueue(gameObject);

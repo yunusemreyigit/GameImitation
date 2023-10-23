@@ -9,33 +9,55 @@ public class Player : MonoBehaviour
     [SerializeField] private float rocketPower;
     private bool isRocket;
     float speedY;
+    SpriteRenderer spriteRenderer;
+    [SerializeField] private float jumpAcceleration = 1f;
+    [SerializeField] private float fallAcceleration = 1f;
     GameManager gameManager;
+    [Header("Others"), Space]
     public Animator anim;
-    private SpriteRenderer spriteRenderer;
     public AudioSource jumpSound;
     public AudioSource springSound;
     public AudioSource rocketSound;
+    public AudioSource attackSound;
     public GameObject rocket;
+    public GameObject bullet;
     void Start()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
         gameManager = GameManager.Instance;
         rigidbody2D = GetComponent<Rigidbody2D>();
     }
-
     void Update()
     {
         move();
         exitCameraView();
+        rocketSettings();
+        attack();
         float value = Camera.main.transform.position.y - transform.position.y;
         if (Math.Abs(value) > 8)
         {
             gameManager.gameOver();
         }
-        rocketSettings();
         if (speedY < 0)
         {
+            rigidbody2D.velocity += Vector2.up * (-10 * (fallAcceleration - 1)) * Time.deltaTime;
             if (isRocket) isRocket = false;
+        }
+
+    }
+
+    private void attack()
+    {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            anim.SetBool("fire", true);
+            attackSound.Play();
+            Instantiate(bullet, transform.position, Quaternion.identity);
+
+        }
+        if (Input.GetKeyUp(KeyCode.Space))
+        {
+            anim.SetBool("fire", false);
         }
     }
 
@@ -45,12 +67,13 @@ public class Player : MonoBehaviour
         {
             rocket.SetActive(true);
             rocketSound.Play();
-            anim.Play("rocket");
+            anim.SetBool("rocket", true);
         }
         else
         {
             rocket.SetActive(false);
             rocketSound.Stop();
+            anim.SetBool("rocket", false);
         }
     }
 
@@ -82,7 +105,7 @@ public class Player : MonoBehaviour
         {
             if (other.gameObject.CompareTag("Platform"))
             {
-                rigidbody2D.AddForce(Vector2.up * maxSpeed, ForceMode2D.Impulse);
+                rigidbody2D.AddForce(Vector2.up * jumpAcceleration);
                 anim.SetBool("jump", true);
                 jumpSound.Play();
             }
@@ -111,6 +134,10 @@ public class Player : MonoBehaviour
                 rigidbody2D.AddForce(Vector2.up * maxSpeed * rocketPower, ForceMode2D.Impulse);
                 isRocket = true;
             }
+        }
+        if (other.gameObject.CompareTag("Enemy"))
+        {
+            gameManager.gameOver();
         }
     }
 }
